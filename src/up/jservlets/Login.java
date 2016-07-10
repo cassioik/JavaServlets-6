@@ -51,9 +51,10 @@ public class Login extends HttpServlet {
 
 		// Load the driver class
 		try {
+			// driverClassName = "Teste de erro da Classe";
 			Class.forName(driverClassName);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			throw new ServletException("Classe do Driver não Carregada, contacte administrador", e);
 		}
 
 		// get a database connection
@@ -63,6 +64,7 @@ public class Login extends HttpServlet {
 			e.printStackTrace();
 		}
 
+		// dbConnection = null;
 		System.out.println("Initialized " + dbConnection.toString());
 	}
 
@@ -98,8 +100,10 @@ public class Login extends HttpServlet {
 			boolean login = false;
 
 			if (userid != null && password != null) {
+				//dbConnection = null;
 				Statement stmt = dbConnection.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT * FROM LOGIN WHERE ID='" + userid + "' AND PWD='" + password + "'");
+				ResultSet rs = stmt
+						.executeQuery("SELECT * FROM LOGIN WHERE ID='" + userid + "' AND PWD='" + password + "'");
 				if (rs.next())
 					login = true;
 			}
@@ -124,8 +128,13 @@ public class Login extends HttpServlet {
 
 				return;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (java.lang.NullPointerException nfe) {
+			nfe.printStackTrace();
+			response.sendError(500, nfe.getMessage());
+		} catch (Throwable e) {
+			System.out.println("Entrei na Exception");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			throw new ServletException(e);
 		}
 	}
 
